@@ -4,6 +4,7 @@ import { RabbitMQModule } from './infra/messaging/rabbitmq/rabbitmq.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongooseConfigService } from './infra/databases/mongodb/services/mongoose-config.service';
 import { ConfigModule } from '@nestjs/config';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ConfigModule } from '@nestjs/config';
     MongooseModule.forRootAsync({
       useClass: MongooseConfigService,
     }),
+    UsersModule,
   ],
   controllers: [],
   providers: [],
