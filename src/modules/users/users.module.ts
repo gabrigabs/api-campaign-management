@@ -22,5 +22,6 @@ import { UsersRepositoryInterface } from './interfaces/users.repository.interfac
       useExisting: USERS_SERVICE,
     },
   ],
+  exports: [USERS_SERVICE, UsersService],
 })
 export class UsersModule {}
