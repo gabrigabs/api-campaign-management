@@ -17,6 +17,17 @@ model User {
   id        String     @id
   email     String     @unique
   password  String
+  company    Company  @relation(fields: [company_id], references: [id])
+  company_id String
   created_at DateTime   @default(now())
   updated_at DateTime   @updatedAt 
+}
+
+model Company {
+  id        String     @id
+  document  String     @unique
+  name      String
+  users     User[]
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt   
 }
