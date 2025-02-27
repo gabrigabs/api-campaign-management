@@ -4,7 +4,9 @@ import { UserLoginDto } from '@modules/dtos/user-login.dto';
 import { User } from '@prisma/client';
 
 export interface AuthServiceInterface {
-  validateUser(user: UserLoginDto): Promise<Omit<User, 'password'> | null>;
+  validateUser(
+    user: Omit<UserLoginDto, 'company_id'>,
+  ): Promise<Omit<User, 'password'> | null>;
   signUp(user: RegisterUserDto): Promise<AuthResponseDto>;
   signIn(email: string, id: string): Promise<AuthResponseDto>;
 }
