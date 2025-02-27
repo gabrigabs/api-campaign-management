@@ -1,30 +1,23 @@
+import { UserResponseDto } from '@modules/users/dtos/user-response.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from '@prisma/client';
 
 export class CompanyResponseDto {
-  @ApiProperty({ description: 'Company ID' })
+  @ApiProperty()
   id: string;
 
-  @ApiProperty({ description: 'Company name' })
+  @ApiProperty()
+  document: string;
+
+  @ApiProperty()
   name: string;
 
-  @ApiProperty({ description: 'Company email address' })
-  email: string;
+  @ApiProperty({ isArray: true, type: () => UserResponseDto })
+  users: User[];
 
-  @ApiProperty({ description: 'Company phone number', required: false })
-  phone?: string;
-
-  @ApiProperty({ description: 'Company address', required: false })
-  address?: string;
-
-  @ApiProperty({ description: 'Company website', required: false })
-  website?: string;
-
-  @ApiProperty({ description: 'Company description', required: false })
-  description?: string;
-
-  @ApiProperty({ description: 'Company creation timestamp' })
+  @ApiProperty()
   created_at: Date;
 
-  @ApiProperty({ description: 'Company last update timestamp' })
+  @ApiProperty()
   updated_at: Date;
 }

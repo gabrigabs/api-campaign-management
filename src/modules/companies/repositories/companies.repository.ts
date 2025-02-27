@@ -33,7 +33,9 @@ export class CompaniesRepository implements CompaniesRepositoryInterface {
   async findAll(): Promise<Company[]> {
     try {
       this.logger.log('Fetching all companies');
-      const companies = await this.prismaService.company.findMany();
+      const companies = await this.prismaService.company.findMany({
+        include: { users: true },
+      });
       this.logger.log(`Retrieved ${companies.length} companies`);
       return companies;
     } catch (error) {
