@@ -7,12 +7,14 @@ import {
   HttpStatus,
   Inject,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthServiceInterface } from '../interfaces/auth.service.interface';
 import { RegisterUserDto } from '@modules/dtos/register-user.dto';
 import { UserLoginDto } from '@modules/dtos/user-login.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthResponseDto } from '@modules/dtos/auth-response.dto';
+import { UserAuthGuard } from '../guards/user-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -20,6 +22,7 @@ export class AuthController {
     @Inject(AUTH_SERVICE) private readonly authService: AuthServiceInterface,
   ) {}
 
+  @UseGuards(UserAuthGuard)
   @Post('sign-in')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Autenticar usuário' })
@@ -31,6 +34,7 @@ export class AuthController {
   async signIn(@Body() body: UserLoginDto) {
     return this.authService.signIn(body.email, body.password);
   }
+
   @Post('sign-up')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Registrar usuário' })
