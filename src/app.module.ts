@@ -6,6 +6,7 @@ import { MongooseConfigService } from './infra/databases/mongodb/services/mongoo
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CompaniesModule } from './modules/companies/companies.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { AuthModule } from './modules/auth/auth.module';
     }),
     UsersModule,
     AuthModule,
+    CompaniesModule,
   ],
   controllers: [],
   providers: [],
