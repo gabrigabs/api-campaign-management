@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpStatus,
   Inject,
   Logger,
@@ -104,10 +105,11 @@ export class CompaniesController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete company' })
   @ApiParam({ name: 'id', description: 'Company ID' })
   @ApiResponse({
-    status: HttpStatus.OK,
+    status: HttpStatus.NO_CONTENT,
     description: 'Company deleted successfully',
     type: CompanyResponseDto,
   })
@@ -117,8 +119,6 @@ export class CompaniesController {
   })
   async delete(@Param('id') id: string) {
     this.logger.log(`API Request: Delete company - ${id}`);
-    const deletedCompany = await this.companiesService.delete(id);
-
-    return deletedCompany;
+    await this.companiesService.delete(id);
   }
 }

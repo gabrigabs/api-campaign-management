@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpStatus,
   Inject,
   Logger,
@@ -104,10 +105,11 @@ export class CampaignsController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete campaign' })
   @ApiParam({ name: 'id', description: 'Campaign ID' })
   @ApiResponse({
-    status: HttpStatus.OK,
+    status: HttpStatus.NO_CONTENT,
     description: 'Campaign deleted successfully',
     type: CampaignResponseDto,
   })
@@ -117,8 +119,6 @@ export class CampaignsController {
   })
   async delete(@Param('id') id: string) {
     this.logger.log(`API Request: Delete campaign - ${id}`);
-    const deletedCampaign = await this.campaignsService.delete(id);
-
-    return deletedCampaign;
+    await this.campaignsService.delete(id);
   }
 }
