@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
+  Logger,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -18,6 +19,8 @@ import { UserAuthGuard } from '../guards/user-auth.guard';
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(
     @Inject(AUTH_SERVICE) private readonly authService: AuthServiceInterface,
   ) {}
@@ -32,6 +35,7 @@ export class AuthController {
     type: AuthResponseDto,
   })
   async signIn(@Body() body: UserLoginDto) {
+    this.logger.log(`API Request: Sign in - ${body.email}`);
     return this.authService.signIn(body.email, body.password);
   }
 
@@ -44,6 +48,7 @@ export class AuthController {
     type: AuthResponseDto,
   })
   async signUp(@Body() body: RegisterUserDto) {
+    this.logger.log(`API Request: Sign up - ${JSON.stringify(body)}`);
     return this.authService.signUp(body);
   }
 }
