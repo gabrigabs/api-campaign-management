@@ -34,7 +34,7 @@ export class CompaniesRepository implements CompaniesRepositoryInterface {
     try {
       this.logger.log('Fetching all companies');
       const companies = await this.prismaService.company.findMany({
-        include: { users: true },
+        include: { users: true, campaigns: true },
       });
       this.logger.log(`Retrieved ${companies.length} companies`);
       return companies;
@@ -52,6 +52,7 @@ export class CompaniesRepository implements CompaniesRepositoryInterface {
       this.logger.log(`Finding company by: ${JSON.stringify(params)}`);
       const company = await this.prismaService.company.findFirst({
         where: params,
+        include: { users: true, campaigns: true },
       });
       this.logger.log(
         company ? `Company found with ID: ${company.id}` : 'Company not found',

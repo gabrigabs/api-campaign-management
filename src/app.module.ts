@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CompaniesModule } from './modules/companies/companies.module';
+import { CampaignsModule } from './modules/campaigns/campaigns.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { CompaniesModule } from './modules/companies/companies.module';
     UsersModule,
     AuthModule,
     CompaniesModule,
+    CampaignsModule,
   ],
   controllers: [],
   providers: [],
