@@ -4,7 +4,7 @@ import { Campaign } from '@prisma/client';
 import { CampaignsRepositoryInterface } from '../interfaces/campaigns.repository.interface';
 import { CreateCampaignDto } from '../dtos/create-campaign.dto';
 import { UpdateCampaignDto } from '../dtos/update-campaign.dto';
-import { randomUUID } from 'crypto';
+import { createId } from '@paralleldrive/cuid2';
 
 @Injectable()
 export class CampaignsRepository implements CampaignsRepositoryInterface {
@@ -18,7 +18,7 @@ export class CampaignsRepository implements CampaignsRepositoryInterface {
 
       const campaign = await this.prisma.campaign.create({
         data: {
-          id: randomUUID(),
+          id: createId(),
           ...data,
         },
       });

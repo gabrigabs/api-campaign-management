@@ -10,5 +10,10 @@ export class CreateCampaignDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
+  status: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   company_id: string;
 }

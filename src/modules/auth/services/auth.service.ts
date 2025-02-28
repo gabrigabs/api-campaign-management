@@ -8,6 +8,7 @@ import { User } from '@prisma/client';
 import { AuthResponseDto } from '@modules/dtos/auth-response.dto';
 import { JwtService } from '@nestjs/jwt';
 import { CurrentUserDto } from '@commons/dtos/current-user.dto';
+import { CreateUserDto } from '@modules/users/dtos/create-user.dto';
 
 export class AuthService implements AuthServiceInterface {
   private readonly logger = new Logger(AuthService.name);
@@ -41,7 +42,7 @@ export class AuthService implements AuthServiceInterface {
     return userFound;
   }
 
-  async signUp(user: UserLoginDto): Promise<AuthResponseDto> {
+  async signUp(user: CreateUserDto): Promise<AuthResponseDto> {
     this.logger.log(`Signing up user with email: ${user.email}`);
 
     const userExists = await this.usersService.findBy({
