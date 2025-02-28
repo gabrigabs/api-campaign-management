@@ -12,10 +12,11 @@ import {
 } from '@nestjs/common';
 import { AuthServiceInterface } from '../interfaces/auth.service.interface';
 import { RegisterUserDto } from '@modules/dtos/register-user.dto';
-import { UserLoginDto } from '@modules/dtos/user-login.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthResponseDto } from '@modules/dtos/auth-response.dto';
 import { UserAuthGuard } from '../guards/user-auth.guard';
+import { CurrentUser } from '@commons/decorators/current-user.decorator';
+import { CurrentUserDto } from '@commons/dtos/current-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -34,9 +35,9 @@ export class AuthController {
     description: 'Login realizado com sucesso',
     type: AuthResponseDto,
   })
-  async signIn(@Body() body: UserLoginDto) {
-    this.logger.log(`API Request: Sign in - ${body.email}`);
-    return this.authService.signIn(body.email, body.password);
+  async signIn(@CurrentUser() user: CurrentUserDto) {
+    this.logger.log(`API Request: Sign in - ${user.email}`);
+    return this.authService.signIn(user);
   }
 
   @Post('sign-up')

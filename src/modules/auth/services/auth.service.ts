@@ -7,6 +7,7 @@ import { comparePassword, hashPassword } from '@commons/utils/password.util';
 import { User } from '@prisma/client';
 import { AuthResponseDto } from '@modules/dtos/auth-response.dto';
 import { JwtService } from '@nestjs/jwt';
+import { CurrentUserDto } from '@commons/dtos/current-user.dto';
 
 export class AuthService implements AuthServiceInterface {
   private readonly logger = new Logger(AuthService.name);
@@ -57,11 +58,19 @@ export class AuthService implements AuthServiceInterface {
       password: hashedPassword,
     });
 
-    return this.signIn(userCreated.email, userCreated.id);
+    return this.signIn({
+      id: userCreated.id,
+      email: userCreated.email,
+      company_id: userCreated.company_id,
+    });
   }
-  async signIn(email: string, id: string): Promise<AuthResponseDto> {
-    this.logger.log(`Signing in user: ${email}`);
-    const payload = { email, id };
+  async signIn(user: CurrentUserDto): Promise<AuthResponseDto> {
+    this.logger.log(`Signing in user: ${user.email}`);
+    const payload = {
+      id: user.id,
+      email: user.email,
+      company_id: user.company_id,
+    };
     const accessToken = await this.jwtService.signAsync(payload);
 
     return { access_token: accessToken };
