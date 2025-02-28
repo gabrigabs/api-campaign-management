@@ -55,7 +55,9 @@ export class CompaniesRepository implements CompaniesRepositoryInterface {
         include: { users: true, campaigns: true },
       });
       this.logger.log(
-        company ? `Company found with ID: ${company.id}` : 'Company not found',
+        company
+          ? `Company found with params: ${JSON.stringify(params)}`
+          : 'Company not found',
       );
       return company;
     } catch (error) {
@@ -85,14 +87,13 @@ export class CompaniesRepository implements CompaniesRepositoryInterface {
     }
   }
 
-  async delete(id: string): Promise<Company> {
+  async delete(id: string): Promise<void> {
     try {
       this.logger.log(`Deleting company with ID: ${id}`);
-      const company = await this.prismaService.company.delete({
+      await this.prismaService.company.delete({
         where: { id },
       });
       this.logger.log(`Company deleted successfully`);
-      return company;
     } catch (error) {
       this.logger.error('Failed to delete company', error);
       throw new HttpException(

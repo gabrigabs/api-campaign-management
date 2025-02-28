@@ -80,12 +80,11 @@ export class UsersRepository implements UsersRepositoryInterface {
     }
   }
 
-  async delete(id: string): Promise<User> {
+  async delete(id: string): Promise<void> {
     try {
       this.logger.log(`Deleting user with ID: ${id}`);
-      const user = await this.prismaService.user.delete({ where: { id } });
+      await this.prismaService.user.delete({ where: { id } });
       this.logger.log(`User deleted successfully`);
-      return user;
     } catch (error) {
       this.logger.error('Failed to delete user', error);
       throw new HttpException(

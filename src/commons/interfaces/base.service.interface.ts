@@ -3,5 +3,5 @@ export interface BaseServiceInterface<T, CreateDto, UpdateDto> {
   findAll(filter?: any): Promise<T[]>;
   findBy(params: Partial<T>): Promise<T | null>;
   update(id: string, data: UpdateDto): Promise<T>;
-  delete(id: string): Promise<T>;
+  delete(id: string): Promise<void>;
 }

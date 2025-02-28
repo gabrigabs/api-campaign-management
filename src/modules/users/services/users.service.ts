@@ -29,8 +29,8 @@ export class UsersService implements UsersServiceInterface {
     this.logger.log(`Updating user with ID: ${id}`);
     return this.usersRepository.update(id, data);
   }
-  delete(id: string): Promise<User> {
+  async delete(id: string): Promise<void> {
     this.logger.log(`Deleting user with ID: ${id}`);
-    return this.usersRepository.delete(id);
+    await this.usersRepository.delete(id);
   }
 }

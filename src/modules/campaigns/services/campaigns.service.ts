@@ -35,8 +35,8 @@ export class CampaignsService implements CampaignsServiceInterface {
     return this.campaignsRepository.update(id, data);
   }
 
-  delete(id: string): Promise<Campaign> {
+  async delete(id: string): Promise<void> {
     this.logger.log(`Deleting campaign with ID: ${id}`);
-    return this.campaignsRepository.delete(id);
+    await this.campaignsRepository.delete(id);
   }
 }

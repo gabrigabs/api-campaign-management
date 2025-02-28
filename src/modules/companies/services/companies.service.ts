@@ -35,8 +35,8 @@ export class CompaniesService implements CompaniesServiceInterface {
     return this.companiesRepository.update(id, data);
   }
 
-  delete(id: string): Promise<Company> {
+  async delete(id: string): Promise<void> {
     this.logger.log(`Deleting company with ID: ${id}`);
-    return this.companiesRepository.delete(id);
+    await this.companiesRepository.delete(id);
   }
 }
