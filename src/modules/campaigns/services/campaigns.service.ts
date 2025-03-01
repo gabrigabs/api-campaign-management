@@ -5,6 +5,12 @@ import { UpdateCampaignDto } from '../dtos/update-campaign.dto';
 import { CAMPAIGNS_REPOSITORY } from '@commons/consts/consts';
 import { CampaignsRepositoryInterface } from '../interfaces/campaigns.repository.interface';
 import { Campaign } from '@prisma/client';
+import { GetCampaignsQueryDto } from '../dtos/get-campaigns-query.dto';
+import {
+  mountPaginateAndSearchParams,
+  mountPaginatedResponse,
+} from '@commons/utils/pagination.utils';
+import { PaginatedQueryDto } from '@commons/dtos/paginated-query.dto';
 
 @Injectable()
 export class CampaignsService implements CampaignsServiceInterface {
@@ -20,9 +26,10 @@ export class CampaignsService implements CampaignsServiceInterface {
     return this.campaignsRepository.create(data);
   }
 
-  findAll(): Promise<Campaign[]> {
+  findAll(query: GetCampaignsQueryDto): Promise<Campaign[]> {
+    const { skip, take, where } = mountPaginateAndSearchParams(query);
     this.logger.log('Fetching all campaigns');
-    return this.campaignsRepository.findAll();
+    return this.campaignsRepository.findAll(skip, take, where);
   }
 
   findBy(params: Partial<Campaign>): Promise<Campaign | null> {
@@ -33,6 +40,23 @@ export class CampaignsService implements CampaignsServiceInterface {
   update(id: string, data: UpdateCampaignDto): Promise<Campaign> {
     this.logger.log(`Updating campaign with ID: ${id}`);
     return this.campaignsRepository.update(id, data);
+  }
+
+  async paginateResults(
+    query: GetCampaignsQueryDto,
+  ): Promise<PaginatedQueryDto> {
+    const results = await this.findAll(query);
+    const total = results.length;
+
+    this.logger.log(`Paginating ${total} items`);
+
+    const paginatedResults = mountPaginatedResponse<Campaign>(
+      query,
+      results,
+      total,
+    );
+
+    return paginatedResults;
   }
 
   async delete(id: string): Promise<void> {

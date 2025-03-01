@@ -1,6 +1,4 @@
-import { UserResponseDto } from '@modules/users/dtos/user-response.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { User } from '@prisma/client';
 
 export class CompanyResponseDto {
   @ApiProperty()
@@ -12,12 +10,23 @@ export class CompanyResponseDto {
   @ApiProperty()
   name: string;
 
-  @ApiProperty({ isArray: true, type: () => UserResponseDto })
-  users: User[];
-
   @ApiProperty()
   created_at: Date;
 
   @ApiProperty()
   updated_at: Date;
+}
+
+export class PaginatedCompaniesResponseDto {
+  @ApiProperty({ type: [CompanyResponseDto] })
+  data: CompanyResponseDto[];
+
+  @ApiProperty()
+  page: number;
+
+  @ApiProperty()
+  totalPages: number;
+
+  @ApiProperty()
+  totalItems: number;
 }

@@ -11,12 +11,17 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { CampaignsServiceInterface } from '../interfaces/campaigns.service.interface';
 import { CreateCampaignDto } from '../dtos/create-campaign.dto';
 import { UpdateCampaignDto } from '../dtos/update-campaign.dto';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CampaignResponseDto } from '../dtos/campaign-response.dto';
+import {
+  CampaignResponseDto,
+  PaginatedCampaignsResponseDto,
+} from '../dtos/campaign-response.dto';
+import { GetCampaignsQueryDto } from '../dtos/get-campaigns-query.dto';
 
 @ApiTags('campaigns')
 @Controller('campaigns')
@@ -49,11 +54,11 @@ export class CampaignsController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Campaigns retrieved successfully',
-    type: [CampaignResponseDto],
+    type: [PaginatedCampaignsResponseDto],
   })
-  async findAll() {
+  async findAll(@Query() query: GetCampaignsQueryDto) {
     this.logger.log('API Request: Get all campaigns');
-    const campaigns = await this.campaignsService.findAll();
+    const campaigns = await this.campaignsService.paginateResults(query);
 
     return campaigns;
   }

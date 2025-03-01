@@ -8,6 +8,7 @@ import { AuthService } from './services/auth.service';
 import { UserAuthGuard } from './guards/user-auth.guard';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { AUTH_SERVICE } from '@commons/consts/consts';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { LocalStrategy } from './strategies/local.strategy';
   ],
   controllers: [AuthController],
   providers: [
-    { provide: 'AUTH_SERVICE', useClass: AuthService },
+    { provide: AUTH_SERVICE, useClass: AuthService },
     LocalStrategy,
     JwtStrategy,
     UserAuthGuard,

@@ -19,3 +19,17 @@ export class CampaignResponseDto {
   @ApiProperty()
   updated_at: Date;
 }
+
+export class PaginatedCampaignsResponseDto {
+  @ApiProperty({ type: [CampaignResponseDto] })
+  data: CampaignResponseDto[];
+
+  @ApiProperty()
+  page: number;
+
+  @ApiProperty()
+  totalPages: number;
+
+  @ApiProperty()
+  totalItems: number;
+}

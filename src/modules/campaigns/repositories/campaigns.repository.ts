@@ -34,11 +34,19 @@ export class CampaignsRepository implements CampaignsRepositoryInterface {
     }
   }
 
-  async findAll(): Promise<Campaign[]> {
+  async findAll(
+    skip: number,
+    take: number,
+    where?: Partial<Campaign>,
+  ): Promise<Campaign[]> {
     try {
       this.logger.log('Fetching all campaigns');
 
-      const campaigns = await this.prisma.campaign.findMany();
+      const campaigns = await this.prisma.campaign.findMany({
+        skip,
+        take,
+        where,
+      });
 
       this.logger.log(`Retrieved ${campaigns.length} campaigns`);
       return campaigns;

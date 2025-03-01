@@ -11,6 +11,12 @@ import { UpdateCompanyDto } from '../dtos/update-company.dto';
 import { COMPANIES_REPOSITORY } from '@commons/consts/consts';
 import { CompaniesRepositoryInterface } from '../interfaces/companies.repository.interface';
 import { Company } from '@prisma/client';
+import {
+  mountPaginateAndSearchParams,
+  mountPaginatedResponse,
+} from '@commons/utils/pagination.utils';
+import { GetCompaniesQueryDto } from '../dtos/get-companies-query.dto';
+import { PaginatedCompaniesResponseDto } from '../dtos/company-response.dto';
 
 @Injectable()
 export class CompaniesService implements CompaniesServiceInterface {
@@ -26,9 +32,13 @@ export class CompaniesService implements CompaniesServiceInterface {
     return this.companiesRepository.create(data);
   }
 
-  findAll(): Promise<Company[]> {
+  findAll(query: GetCompaniesQueryDto): Promise<Company[]> {
     this.logger.log('Fetching all companies');
-    return this.companiesRepository.findAll();
+
+    const { skip, take, where } =
+      mountPaginateAndSearchParams<GetCompaniesQueryDto>(query);
+
+    return this.companiesRepository.findAll(skip, take, where);
   }
 
   findBy(params: Partial<Company>): Promise<Company | null> {
@@ -44,6 +54,23 @@ export class CompaniesService implements CompaniesServiceInterface {
   async delete(id: string): Promise<void> {
     this.logger.log(`Deleting company with ID: ${id}`);
     await this.companiesRepository.delete(id);
+  }
+
+  async paginateResults(
+    query: GetCompaniesQueryDto,
+  ): Promise<PaginatedCompaniesResponseDto> {
+    const results = await this.findAll(query);
+    const total = results.length;
+
+    this.logger.log(`Paginating ${total} items`);
+
+    const paginatedResults = mountPaginatedResponse<Company>(
+      query,
+      results,
+      total,
+    );
+
+    return paginatedResults;
   }
 
   async verifyIfCompanyExistsById(companyId: string): Promise<void> {

@@ -11,12 +11,17 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { CompaniesServiceInterface } from '../interfaces/companies.service.interface';
 import { CreateCompanyDto } from '../dtos/create-company.dto';
 import { UpdateCompanyDto } from '../dtos/update-company.dto';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CompanyResponseDto } from '../dtos/company-response.dto';
+import {
+  CompanyResponseDto,
+  PaginatedCompaniesResponseDto,
+} from '../dtos/company-response.dto';
+import { GetCompaniesQueryDto } from '../dtos/get-companies-query.dto';
 
 @ApiTags('companies')
 @Controller('companies')
@@ -49,11 +54,11 @@ export class CompaniesController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Companies retrieved successfully',
-    type: [CompanyResponseDto],
+    type: [PaginatedCompaniesResponseDto],
   })
-  async findAll() {
+  async findAll(@Query() query: GetCompaniesQueryDto) {
     this.logger.log('API Request: Get all companies');
-    const companies = await this.companiesService.findAll();
+    const companies = await this.companiesService.paginateResults(query);
 
     return companies;
   }
