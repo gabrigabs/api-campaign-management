@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { UsersRepository } from './repositories/users.repository';
 import { PrismaService } from '@infra/databases/prisma/services/prisma.service';
 import {
-  COMPANIES_REPOSITORY,
   COMPANIES_SERVICE,
   USERS_REPOSITORY,
   USERS_SERVICE,
@@ -11,15 +10,12 @@ import { UsersService } from './services/users.service';
 import { UsersRepositoryInterface } from './interfaces/users.repository.interface';
 import { CompaniesModule } from '@modules/companies/companies.module';
 import { CompaniesServiceInterface } from '@modules/companies/interfaces/companies.service.interface';
-import { CompaniesRepository } from '@modules/companies/repositories/companies.repository';
-
 @Module({
   imports: [CompaniesModule],
   controllers: [],
   providers: [
     PrismaService,
     { provide: USERS_REPOSITORY, useClass: UsersRepository },
-    { provide: COMPANIES_REPOSITORY, useClass: CompaniesRepository },
     {
       provide: USERS_SERVICE,
       useFactory: (
