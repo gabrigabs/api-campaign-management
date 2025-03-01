@@ -14,9 +14,10 @@ import { Company } from '@prisma/client';
 import {
   mountPaginateAndSearchParams,
   mountPaginatedResponse,
-} from '@commons/utils/pagination.utils';
+} from '@commons/utils/pagination.util';
 import { GetCompaniesQueryDto } from '../dtos/get-companies-query.dto';
 import { PaginatedCompaniesResponseDto } from '../dtos/company-response.dto';
+import { formatCnpj } from '@commons/utils/document.util';
 
 @Injectable()
 export class CompaniesService implements CompaniesServiceInterface {
@@ -27,8 +28,12 @@ export class CompaniesService implements CompaniesServiceInterface {
     private readonly companiesRepository: CompaniesRepositoryInterface,
   ) {}
 
-  create(data: CreateCompanyDto): Promise<Company> {
+  async create(data: CreateCompanyDto): Promise<Company> {
     this.logger.log(`Creating company with name: ${data.name}`);
+
+    data.document = formatCnpj(data.document);
+
+    await this.verifyIfCompanyExists(data.document);
     return this.companiesRepository.create(data);
   }
 
@@ -50,6 +55,12 @@ export class CompaniesService implements CompaniesServiceInterface {
     this.logger.log(`Updating company with ID: ${id}`);
 
     await this.findById(id);
+
+    if (data.document) {
+      data.document = formatCnpj(data.document);
+      await this.verifyIfCompanyExists(data.document);
+    }
+
     return this.companiesRepository.update(id, data);
   }
 
@@ -97,6 +108,18 @@ export class CompaniesService implements CompaniesServiceInterface {
       this.logger.warn(`Company with ID ${companyId} does not exist`);
       throw new HttpException(
         'Provided company id does not exist!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  private async verifyIfCompanyExists(document: string): Promise<void> {
+    const company = await this.findBy({ document });
+
+    if (company) {
+      this.logger.warn(`Company with document ${document} already exists`);
+      throw new HttpException(
+        'Provided company document already exists!',
         HttpStatus.BAD_REQUEST,
       );
     }

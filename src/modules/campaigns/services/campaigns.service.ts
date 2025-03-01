@@ -18,7 +18,7 @@ import { GetCampaignsQueryDto } from '../dtos/get-campaigns-query.dto';
 import {
   mountPaginateAndSearchParams,
   mountPaginatedResponse,
-} from '@commons/utils/pagination.utils';
+} from '@commons/utils/pagination.util';
 import { PaginatedCampaignsResponseDto } from '../dtos/campaign-response.dto';
 import { CompaniesServiceInterface } from '@modules/companies/interfaces/companies.service.interface';
 

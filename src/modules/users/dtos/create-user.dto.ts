@@ -14,7 +14,7 @@ export class CreateUserDto {
   password: string;
 
   @ApiProperty()
-  @IsValidCuid2({ message: 'company_id must be a valid cuid2' })
+  @IsValidCuid2()
   @IsNotEmpty()
   company_id: string;
 }
