@@ -25,7 +25,7 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
 
     const errorMessage = this.getErrorMessage(exception);
 
-    this.logger.warn(
+    this.logger.error(
       `${request.method} - ${request.url} failed with status ${status}`,
     );
 
