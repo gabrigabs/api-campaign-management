@@ -4,4 +4,6 @@ import { CreateCompanyDto } from '../dtos/create-company.dto';
 import { UpdateCompanyDto } from '../dtos/update-company.dto';
 
 export interface CompaniesServiceInterface
-  extends BaseServiceInterface<Company, CreateCompanyDto, UpdateCompanyDto> {}
+  extends BaseServiceInterface<Company, CreateCompanyDto, UpdateCompanyDto> {
+  verifyIfCompanyExistsById(companyId: string): Promise<void>;
+}

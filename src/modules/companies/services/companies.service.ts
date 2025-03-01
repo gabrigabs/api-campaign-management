@@ -1,4 +1,10 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { CompaniesServiceInterface } from '../interfaces/companies.service.interface';
 import { CreateCompanyDto } from '../dtos/create-company.dto';
 import { UpdateCompanyDto } from '../dtos/update-company.dto';
@@ -38,5 +44,18 @@ export class CompaniesService implements CompaniesServiceInterface {
   async delete(id: string): Promise<void> {
     this.logger.log(`Deleting company with ID: ${id}`);
     await this.companiesRepository.delete(id);
+  }
+
+  async verifyIfCompanyExistsById(companyId: string): Promise<void> {
+    this.logger.log(`Verifying if company exists with ID: ${companyId}`);
+    const company = await this.findBy({ id: companyId });
+
+    if (!company) {
+      this.logger.warn(`Company with ID ${companyId} does not exist`);
+      throw new HttpException(
+        'Provided company id does not exist!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

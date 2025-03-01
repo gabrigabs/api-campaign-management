@@ -49,7 +49,7 @@ export class AuthController {
     type: AuthResponseDto,
   })
   async signUp(@Body() body: RegisterUserDto) {
-    this.logger.log(`API Request: Sign up - ${JSON.stringify(body)}`);
+    this.logger.log(`API Request: Sign up - ${body.email}`);
     return this.authService.signUp(body);
   }
 }

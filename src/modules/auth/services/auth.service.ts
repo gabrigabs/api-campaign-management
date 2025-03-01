@@ -1,9 +1,9 @@
 import { USERS_SERVICE } from '@commons/consts/consts';
 import { UsersServiceInterface } from '@modules/users/interfaces/users.service.interface';
-import { HttpException, HttpStatus, Inject, Logger } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { AuthServiceInterface } from '../interfaces/auth.service.interface';
 import { UserLoginDto } from '@modules/dtos/user-login.dto';
-import { comparePassword, hashPassword } from '@commons/utils/password.util';
+import { comparePassword } from '@commons/utils/password.util';
 import { User } from '@prisma/client';
 import { AuthResponseDto } from '@modules/dtos/auth-response.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -21,6 +21,7 @@ export class AuthService implements AuthServiceInterface {
     user: UserLoginDto,
   ): Promise<Omit<User, 'password'> | null> {
     this.logger.log(`Validating user with email: ${user.email}`);
+
     const userFound = await this.usersService.findBy({ email: user.email });
 
     if (!userFound) {
@@ -37,6 +38,7 @@ export class AuthService implements AuthServiceInterface {
       this.logger.warn(`Invalid password  for user with email ${user.email}`);
       return null;
     }
+
     Object.assign(userFound, { password: undefined });
 
     return userFound;
@@ -45,19 +47,7 @@ export class AuthService implements AuthServiceInterface {
   async signUp(user: CreateUserDto): Promise<AuthResponseDto> {
     this.logger.log(`Signing up user with email: ${user.email}`);
 
-    const userExists = await this.usersService.findBy({
-      email: user.email,
-    });
-
-    if (userExists) {
-      this.logger.warn(`User with email ${user.email} already exists`);
-      throw new HttpException('User already exists!', HttpStatus.BAD_REQUEST);
-    }
-    const hashedPassword = await hashPassword(user.password);
-    const userCreated = await this.usersService.create({
-      ...user,
-      password: hashedPassword,
-    });
+    const userCreated = await this.usersService.create(user);
 
     return this.signIn({
       id: userCreated.id,
@@ -65,8 +55,10 @@ export class AuthService implements AuthServiceInterface {
       company_id: userCreated.company_id,
     });
   }
+
   async signIn(user: CurrentUserDto): Promise<AuthResponseDto> {
     this.logger.log(`Signing in user: ${user.email}`);
+
     const payload = {
       id: user.id,
       email: user.email,
