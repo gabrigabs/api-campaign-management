@@ -1,23 +1,23 @@
-import { isCuid } from '@paralleldrive/cuid2';
+import { isValidCnpj } from '@commons/utils/document.util';
 import {
   registerDecorator,
   ValidationArguments,
   ValidationOptions,
 } from 'class-validator';
 
-export function IsValidCuid2(validationOptions?: ValidationOptions) {
+export function IsValidCnpj(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
     registerDecorator({
-      name: 'isValidCuid2',
+      name: 'isValidCnpj',
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
       validator: {
-        validate(value: string) {
-          return isCuid(value);
+        validate(value: string): boolean {
+          return isValidCnpj(value);
         },
         defaultMessage(args: ValidationArguments): string {
-          return `${args.property} must be a valid cuid2`;
+          return `${args.property} must be a valid CNPJ`;
         },
       },
     });
