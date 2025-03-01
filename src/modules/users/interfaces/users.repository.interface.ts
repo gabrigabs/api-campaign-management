@@ -4,4 +4,7 @@ import { CreateUserDto } from '../dtos/create-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 
 export interface UsersRepositoryInterface
-  extends BaseRepositoryInterface<User, CreateUserDto, UpdateUserDto> {}
+  extends Omit<
+    BaseRepositoryInterface<User, CreateUserDto, UpdateUserDto>,
+    'findAll' | 'delete' | 'update'
+  > {}
