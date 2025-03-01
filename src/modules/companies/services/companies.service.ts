@@ -46,13 +46,17 @@ export class CompaniesService implements CompaniesServiceInterface {
     return this.companiesRepository.findBy(params);
   }
 
-  update(id: string, data: UpdateCompanyDto): Promise<Company> {
+  async update(id: string, data: UpdateCompanyDto): Promise<Company> {
     this.logger.log(`Updating company with ID: ${id}`);
+
+    await this.findById(id);
     return this.companiesRepository.update(id, data);
   }
 
   async delete(id: string): Promise<void> {
     this.logger.log(`Deleting company with ID: ${id}`);
+
+    await this.findById(id);
     await this.companiesRepository.delete(id);
   }
 
@@ -71,6 +75,18 @@ export class CompaniesService implements CompaniesServiceInterface {
     );
 
     return paginatedResults;
+  }
+
+  async findById(id: string): Promise<Company> {
+    this.logger.log(`Finding company by ID: ${id}`);
+    const campaign = await this.findBy({ id });
+
+    if (!campaign) {
+      this.logger.warn(`Company with ID: ${id} not found`);
+      throw new HttpException('Company not found!', HttpStatus.NOT_FOUND);
+    }
+
+    return campaign;
   }
 
   async verifyIfCompanyExistsById(companyId: string): Promise<void> {

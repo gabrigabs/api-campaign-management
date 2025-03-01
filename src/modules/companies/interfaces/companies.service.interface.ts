@@ -11,4 +11,5 @@ export interface CompaniesServiceInterface
     query: GetCompaniesQueryDto,
   ): Promise<PaginatedCompaniesResponseDto>;
   verifyIfCompanyExistsById(companyId: string): Promise<void>;
+  findById(id: string): Promise<Company>;
 }

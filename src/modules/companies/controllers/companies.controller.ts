@@ -77,7 +77,7 @@ export class CompaniesController {
   })
   async findById(@Param('id') id: string) {
     this.logger.log(`API Request: Get company by ID - ${id}`);
-    const company = await this.companiesService.findBy({ id });
+    const company = await this.companiesService.findById(id);
 
     return company;
   }
