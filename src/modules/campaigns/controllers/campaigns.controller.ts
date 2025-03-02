@@ -23,6 +23,8 @@ import { CreateCampaignDto } from '../dtos/create-campaign.dto';
 import { UpdateCampaignDto } from '../dtos/update-campaign.dto';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -54,6 +56,29 @@ export class CampaignsController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('phones-list'))
   @ApiOperation({ summary: 'Create campaign' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        'phones-list': {
+          type: 'string',
+          format: 'binary',
+          description:
+            'Text file containing phone numbers in format XX XXXXX-XXXX, one phone for line',
+        },
+        name: {
+          type: 'string',
+          description: 'Name of the campaign',
+        },
+        message: {
+          type: 'string',
+          description: 'Campaign message content',
+        },
+      },
+      required: ['phones-list', 'name', 'message'],
+    },
+  })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Campaign created successfully',
