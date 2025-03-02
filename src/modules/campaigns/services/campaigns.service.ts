@@ -8,7 +8,10 @@ import {
 import { CampaignsServiceInterface } from '../interfaces/campaigns.service.interface';
 import { CreateCampaignDto } from '../dtos/create-campaign.dto';
 import { UpdateCampaignDto } from '../dtos/update-campaign.dto';
-import { CAMPAIGNS_REPOSITORY } from '@commons/consts/consts';
+import {
+  CAMPAIGNS_REPOSITORY,
+  COMPANIES_SERVICE,
+} from '@commons/consts/consts';
 import { CampaignsRepositoryInterface } from '../interfaces/campaigns.repository.interface';
 import { Campaign } from '@prisma/client';
 import { GetCampaignsQueryDto } from '../dtos/get-campaigns-query.dto';
@@ -20,6 +23,7 @@ import { PaginatedCampaignsResponseDto } from '../dtos/campaign-response.dto';
 import { CampaignStatusEnum } from '@commons/enums/campaign-status.enum';
 import { getPhonesFromFile } from '@commons/utils/phone.util';
 import { RabbitMQService } from '@infra/messaging/rabbitmq/services/rabbitmq.service';
+import { CompaniesService } from '@modules/companies/services/companies.service';
 
 @Injectable()
 export class CampaignsService implements CampaignsServiceInterface {
@@ -28,6 +32,8 @@ export class CampaignsService implements CampaignsServiceInterface {
   constructor(
     @Inject(CAMPAIGNS_REPOSITORY)
     private readonly campaignsRepository: CampaignsRepositoryInterface,
+    @Inject(COMPANIES_SERVICE)
+    private readonly companiesService: CompaniesService,
     private readonly rabbitMQService: RabbitMQService,
   ) {}
 
@@ -37,6 +43,8 @@ export class CampaignsService implements CampaignsServiceInterface {
     file: Express.Multer.File,
   ): Promise<Campaign> {
     this.logger.log(`Creating campaign with name: ${data.name}`);
+
+    await this.companiesService.findById(userCompanyId);
 
     const phoneList = getPhonesFromFile(file);
 
@@ -132,7 +140,7 @@ export class CampaignsService implements CampaignsServiceInterface {
         `User company ID: ${userCompanyId} does not match campaign company ID: ${companyId}`,
       );
       throw new HttpException(
-        'User company ID does not match campaign provided company ID!',
+        'User company ID does not match provided company ID!',
         HttpStatus.BAD_REQUEST,
       );
     }
