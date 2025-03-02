@@ -1,9 +1,15 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { connect, Connection, Channel } from 'amqplib';
 
 @Injectable()
 export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
+  private readonly logger = new Logger(RabbitMQService.name);
   private connection: Connection;
   private channel: Channel;
   private readonly queueName: string;
@@ -20,8 +26,9 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       await this.channel.assertQueue(this.queueName, {
         durable: true,
       });
+      this.logger.log('RabbitMQ connected');
     } catch (error) {
-      console.error('Failed to connect to RabbitMQ', error);
+      this.logger.error('Failed to connect to RabbitMQ');
       throw error;
     }
   }
@@ -31,7 +38,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
     if (this.connection) await this.connection.close();
   }
 
-  sendToQueue(message: any) {
+  sendToQueue<T>(message: T) {
     return this.channel.sendToQueue(
       this.queueName,
       Buffer.from(JSON.stringify(message)),
