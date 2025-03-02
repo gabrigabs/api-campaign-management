@@ -9,7 +9,7 @@ import {
   Inject,
   Logger,
   Param,
-  Patch,
+  Put,
   Post,
   Query,
 } from '@nestjs/common';
@@ -82,7 +82,7 @@ export class CompaniesController {
     return company;
   }
 
-  @Patch(':id')
+  @Put(':id')
   @ApiOperation({ summary: 'Update company' })
   @ApiParam({ name: 'id', description: 'Company ID' })
   @ApiResponse({

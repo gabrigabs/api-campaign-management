@@ -3,16 +3,20 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
   HttpCode,
   HttpStatus,
   Inject,
   Logger,
   Param,
-  Patch,
+  ParseFilePipe,
+  Put,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CampaignsServiceInterface } from '../interfaces/campaigns.service.interface';
 import { CreateCampaignDto } from '../dtos/create-campaign.dto';
@@ -33,6 +37,7 @@ import { ErrorResponseDto } from '@commons/dtos/error-response.dto';
 import { CurrentUserDto } from '@commons/dtos/current-user.dto';
 import { CurrentUser } from '@commons/decorators/current-user.decorator';
 import { JwtAuthGuard } from '@commons/guards/jwt-auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('campaigns')
 @ApiBearerAuth()
@@ -47,6 +52,7 @@ export class CampaignsController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('phones-list'))
   @ApiOperation({ summary: 'Create campaign' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -58,11 +64,28 @@ export class CampaignsController {
     description: 'Validation Error',
     type: ErrorResponseDto,
   })
-  async create(@Body() createCampaignDto: CreateCampaignDto) {
+  async create(
+    @Body() createCampaignDto: CreateCampaignDto,
+    @CurrentUser() user: CurrentUserDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({
+            fileType: 'text/plain',
+          }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
     this.logger.log(
       `API Request: Create campaign - ${JSON.stringify(createCampaignDto)}`,
     );
-    const result = await this.campaignsService.create(createCampaignDto);
+    const result = await this.campaignsService.create(
+      createCampaignDto,
+      user.company_id,
+      file,
+    );
 
     return result;
   }
@@ -109,7 +132,7 @@ export class CampaignsController {
     return campaign;
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update campaign' })
   @ApiParam({ name: 'id', description: 'Campaign ID' })
