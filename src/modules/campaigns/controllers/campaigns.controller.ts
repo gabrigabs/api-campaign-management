@@ -12,19 +12,30 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CampaignsServiceInterface } from '../interfaces/campaigns.service.interface';
 import { CreateCampaignDto } from '../dtos/create-campaign.dto';
 import { UpdateCampaignDto } from '../dtos/update-campaign.dto';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import {
   CampaignResponseDto,
   PaginatedCampaignsResponseDto,
 } from '../dtos/campaign-response.dto';
 import { GetCampaignsQueryDto } from '../dtos/get-campaigns-query.dto';
 import { ErrorResponseDto } from '@commons/dtos/error-response.dto';
+import { CurrentUserDto } from '@commons/dtos/current-user.dto';
+import { CurrentUser } from '@commons/decorators/current-user.decorator';
+import { JwtAuthGuard } from '@commons/guards/jwt-auth.guard';
 
 @ApiTags('campaigns')
+@ApiBearerAuth()
 @Controller('campaigns')
 export class CampaignsController {
   private readonly logger = new Logger(CampaignsController.name);
@@ -35,6 +46,7 @@ export class CampaignsController {
   ) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Create campaign' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -56,20 +68,28 @@ export class CampaignsController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'List all campaigns' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Campaigns retrieved successfully',
     type: [PaginatedCampaignsResponseDto],
   })
-  async findAll(@Query() query: GetCampaignsQueryDto) {
+  async findAll(
+    @Query() query: GetCampaignsQueryDto,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
     this.logger.log('API Request: Get all campaigns');
-    const campaigns = await this.campaignsService.paginateResults(query);
+    const campaigns = await this.campaignsService.paginateResults(
+      query,
+      user.company_id,
+    );
 
     return campaigns;
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get campaign by ID' })
   @ApiParam({ name: 'id', description: 'Campaign ID' })
   @ApiResponse({
@@ -90,6 +110,7 @@ export class CampaignsController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update campaign' })
   @ApiParam({ name: 'id', description: 'Campaign ID' })
   @ApiResponse({
@@ -105,6 +126,7 @@ export class CampaignsController {
   async update(
     @Param('id') id: string,
     @Body() updateCampaignDto: UpdateCampaignDto,
+    @CurrentUser() user: CurrentUserDto,
   ) {
     this.logger.log(
       `API Request: Update campaign ID ${id} - ${JSON.stringify(updateCampaignDto)}`,
@@ -112,12 +134,14 @@ export class CampaignsController {
     const updatedCampaign = await this.campaignsService.update(
       id,
       updateCampaignDto,
+      user.company_id,
     );
 
     return updatedCampaign;
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete campaign' })
   @ApiParam({ name: 'id', description: 'Campaign ID' })
@@ -131,8 +155,8 @@ export class CampaignsController {
     description: 'Campaign not found',
     type: ErrorResponseDto,
   })
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id') id: string, @CurrentUser() user: CurrentUserDto) {
     this.logger.log(`API Request: Delete campaign - ${id}`);
-    await this.campaignsService.delete(id);
+    await this.campaignsService.delete(id, user.company_id);
   }
 }

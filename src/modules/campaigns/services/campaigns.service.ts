@@ -21,6 +21,7 @@ import {
 } from '@commons/utils/pagination.util';
 import { PaginatedCampaignsResponseDto } from '../dtos/campaign-response.dto';
 import { CompaniesServiceInterface } from '@modules/companies/interfaces/companies.service.interface';
+import { CampaignStatusEnum } from '@commons/enums/campaign-status.enum';
 
 @Injectable()
 export class CampaignsService implements CampaignsServiceInterface {
@@ -33,11 +34,19 @@ export class CampaignsService implements CampaignsServiceInterface {
     private readonly companiesService: CompaniesServiceInterface,
   ) {}
 
-  async create(data: CreateCampaignDto): Promise<Campaign> {
+  async create(
+    data: CreateCampaignDto,
+    userCompanyId: string,
+  ): Promise<Campaign> {
     this.logger.log(`Creating campaign with name: ${data.name}`);
 
-    await this.companiesService.verifyIfCompanyExistsById(data.company_id);
-    return this.campaignsRepository.create(data);
+    const campaignToCreate = {
+      name: data.name,
+      company_id: userCompanyId,
+      status: CampaignStatusEnum.PENDING,
+    };
+
+    return this.campaignsRepository.create(campaignToCreate);
   }
 
   findAll(query: GetCampaignsQueryDto): Promise<Campaign[]> {
@@ -51,17 +60,27 @@ export class CampaignsService implements CampaignsServiceInterface {
     return this.campaignsRepository.findBy(params);
   }
 
-  async update(id: string, data: UpdateCampaignDto): Promise<Campaign> {
+  async update(
+    id: string,
+    data: UpdateCampaignDto,
+    userCompanyId: string,
+  ): Promise<Campaign> {
     this.logger.log(`Updating campaign with ID: ${id}`);
 
-    await this.findById(id);
+    const company = await this.findById(id);
+
+    this.validateCompanyId(userCompanyId, company.company_id);
+
     return this.campaignsRepository.update(id, data);
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string, userCompanyId: string): Promise<void> {
     this.logger.log(`Deleting campaign with ID: ${id}`);
 
-    await this.findById(id);
+    const company = await this.findById(id);
+
+    this.validateCompanyId(userCompanyId, company.company_id);
+
     await this.campaignsRepository.delete(id);
   }
 
@@ -92,5 +111,17 @@ export class CampaignsService implements CampaignsServiceInterface {
     }
 
     return campaign;
+  }
+
+  private validateCompanyId(userCompanyId: string, companyId: string): void {
+    if (userCompanyId !== companyId) {
+      this.logger.warn(
+        `User company ID: ${userCompanyId} does not match campaign company ID: ${companyId}`,
+      );
+      throw new HttpException(
+        'User company ID does not match campaign provided company ID!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

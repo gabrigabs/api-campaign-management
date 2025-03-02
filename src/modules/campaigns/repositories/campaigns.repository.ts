@@ -2,7 +2,6 @@ import { PrismaService } from '@infra/databases/prisma/services/prisma.service';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Campaign } from '@prisma/client';
 import { CampaignsRepositoryInterface } from '../interfaces/campaigns.repository.interface';
-import { CreateCampaignDto } from '../dtos/create-campaign.dto';
 import { UpdateCampaignDto } from '../dtos/update-campaign.dto';
 import { createId } from '@paralleldrive/cuid2';
 
@@ -12,7 +11,7 @@ export class CampaignsRepository implements CampaignsRepositoryInterface {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateCampaignDto): Promise<Campaign> {
+  async create(data: Omit<Campaign, 'id'>): Promise<Campaign> {
     try {
       this.logger.log(`Creating campaign with name: ${data.name}`);
 
