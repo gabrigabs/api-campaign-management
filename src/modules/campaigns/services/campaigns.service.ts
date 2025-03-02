@@ -8,10 +8,7 @@ import {
 import { CampaignsServiceInterface } from '../interfaces/campaigns.service.interface';
 import { CreateCampaignDto } from '../dtos/create-campaign.dto';
 import { UpdateCampaignDto } from '../dtos/update-campaign.dto';
-import {
-  CAMPAIGNS_REPOSITORY,
-  COMPANIES_SERVICE,
-} from '@commons/consts/consts';
+import { CAMPAIGNS_REPOSITORY } from '@commons/consts/consts';
 import { CampaignsRepositoryInterface } from '../interfaces/campaigns.repository.interface';
 import { Campaign } from '@prisma/client';
 import { GetCampaignsQueryDto } from '../dtos/get-campaigns-query.dto';
@@ -20,8 +17,9 @@ import {
   mountPaginatedResponse,
 } from '@commons/utils/pagination.util';
 import { PaginatedCampaignsResponseDto } from '../dtos/campaign-response.dto';
-import { CompaniesServiceInterface } from '@modules/companies/interfaces/companies.service.interface';
 import { CampaignStatusEnum } from '@commons/enums/campaign-status.enum';
+import { getPhonesFromFile } from '@commons/utils/phone.util';
+import { RabbitMQService } from '@infra/messaging/rabbitmq/services/rabbitmq.service';
 
 @Injectable()
 export class CampaignsService implements CampaignsServiceInterface {
@@ -30,15 +28,17 @@ export class CampaignsService implements CampaignsServiceInterface {
   constructor(
     @Inject(CAMPAIGNS_REPOSITORY)
     private readonly campaignsRepository: CampaignsRepositoryInterface,
-    @Inject(COMPANIES_SERVICE)
-    private readonly companiesService: CompaniesServiceInterface,
+    private readonly rabbitMQService: RabbitMQService,
   ) {}
 
   async create(
     data: CreateCampaignDto,
     userCompanyId: string,
+    file: Express.Multer.File,
   ): Promise<Campaign> {
     this.logger.log(`Creating campaign with name: ${data.name}`);
+
+    const phoneList = getPhonesFromFile(file);
 
     const campaignToCreate = {
       name: data.name,
@@ -46,7 +46,20 @@ export class CampaignsService implements CampaignsServiceInterface {
       status: CampaignStatusEnum.PENDING,
     };
 
-    return this.campaignsRepository.create(campaignToCreate);
+    const campaign = await this.campaignsRepository.create(campaignToCreate);
+
+    const messages = phoneList.map((phone) => {
+      return {
+        phone_number: phone,
+        message: data.message,
+        campaign_id: campaign.id,
+        company_id: userCompanyId,
+      };
+    });
+
+    await this.rabbitMQService.sendToQueueBatch(messages);
+
+    return campaign;
   }
 
   findAll(query: GetCampaignsQueryDto): Promise<Campaign[]> {

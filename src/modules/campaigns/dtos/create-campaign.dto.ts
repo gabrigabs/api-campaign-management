@@ -6,4 +6,9 @@ export class CreateCampaignDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  message?: string;
 }

@@ -7,7 +7,11 @@ import { PaginatedCampaignsResponseDto } from '../dtos/campaign-response.dto';
 
 export interface CampaignsServiceInterface
   extends BaseServiceInterface<Campaign, CreateCampaignDto, UpdateCampaignDto> {
-  create(data: CreateCampaignDto, userCompányId?: string): Promise<Campaign>;
+  create(
+    data: CreateCampaignDto,
+    userCompányId?: string,
+    file?: Express.Multer.File,
+  ): Promise<Campaign>;
   update(
     id: string,
     data: UpdateCampaignDto,

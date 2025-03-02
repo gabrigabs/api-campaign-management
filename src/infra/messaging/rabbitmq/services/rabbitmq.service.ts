@@ -45,4 +45,15 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       { persistent: true },
     );
   }
+
+  async sendToQueueBatch<T>(messages: T[]) {
+    for (const message of messages) {
+      const result = this.sendToQueue(message);
+      if (!result) {
+        await new Promise<void>((resolve) => {
+          this.channel.once('drain', () => resolve());
+        });
+      }
+    }
+  }
 }
