@@ -88,9 +88,6 @@ export class CampaignsRepository implements CampaignsRepositoryInterface {
       const campaign = await this.prisma.campaign.update({
         where: { id },
         data,
-        include: {
-          company: true,
-        },
       });
 
       this.logger.log(`Campaign updated successfully`);
@@ -110,9 +107,6 @@ export class CampaignsRepository implements CampaignsRepositoryInterface {
 
       await this.prisma.campaign.delete({
         where: { id },
-        include: {
-          company: true,
-        },
       });
 
       this.logger.log(`Campaign deleted successfully`);
