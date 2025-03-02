@@ -17,7 +17,7 @@ model User {
   id        String     @id
   email     String     @unique
   password  String
-  company   Company  @relation(fields: [company_id], references: [id])
+  company   Company    @relation(fields: [company_id], references: [id], onDelete: Cascade)
   company_id String
   created_at DateTime   @default(now())
   updated_at DateTime   @updatedAt 
@@ -27,7 +27,7 @@ model Campaign {
   id        String     @id
   name      String
   status    String
-  company   Company  @relation(fields: [company_id], references: [id])
+  company   Company    @relation(fields: [company_id], references: [id], onDelete: Cascade)
   company_id String
   created_at DateTime   @default(now())
   updated_at DateTime   @updatedAt 
