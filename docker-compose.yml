@@ -13,20 +13,6 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - app-network
-
-  mongodb:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-root}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-root}
-      MONGO_INITDB_DATABASE: ${MONGO_DB:-campaigns}
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - app-network
-
   rabbitmq:
     image: rabbitmq:3-management
     ports:
@@ -46,5 +32,4 @@ networks:
 
 volumes:
   postgres_data:
-  mongodb_data:
   rabbitmq_data:
