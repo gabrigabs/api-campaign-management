@@ -56,12 +56,13 @@ export class CampaignsService implements CampaignsServiceInterface {
 
     const campaign = await this.campaignsRepository.create(campaignToCreate);
 
-    const messages = phoneList.map((phone) => {
+    const messages = phoneList.map((phone, index) => {
       return {
         phone_number: phone,
         message: data.message,
         campaign_id: campaign.id,
         company_id: userCompanyId,
+        is_last_message: index === phoneList.length - 1,
       };
     });
 
